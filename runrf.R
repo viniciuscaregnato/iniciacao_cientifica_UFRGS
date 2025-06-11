@@ -1,4 +1,4 @@
-runrf=function(ind,df,variable,horizon, add_dummy = TRUE, nlags=4)
+runrf=function(ind,df,variable,horizon, add_dummy = TRUE, nlags = nlags)
   
   request("randomForest")
   
@@ -8,7 +8,7 @@ runrf=function(ind,df,variable,horizon, add_dummy = TRUE, nlags=4)
   # horizon: o horizonte de previsao
   
 {
-  prep_data = dataprep(ind,df,variable,horizon)     # arquivo configurado conforme o dataprep informado
+  prep_data = dataprep(ind,df,variable,horizon, nlags = nlags)     # arquivo configurado conforme o dataprep informado
   Xin = prep_data$Xin                               # remove as linhas conforme o horizon
   yin = prep_data$yin                               # ajusta o numero de linhas igual Xin
   Xout = prep_data$Xout                             # adiciona uma coluna de zeros (dummies)
