@@ -17,8 +17,10 @@ runrf=function(ind,df,variable,horizon, add_dummy = TRUE, nlags=4)
   forecast=predict(modelest,Xout)                   # aplica modelest aos dados Xout        
   
   ## outputs
-  importance = randomForest::importance(modelest)   # resultados
-  outputs = list(importance = importance)           # 
+  importance = randomForest::importance(modelest)   # acessa as variaveis mais importantes de modelest 
+  outputs = list(importance = importance)           # lista as variaveis mais importantes
   
   return(list(forecast=forecast, outputs = outputs))
+  
+  #retona 1) a previsao e 2) a lista de variaveis mais importantes
 }
