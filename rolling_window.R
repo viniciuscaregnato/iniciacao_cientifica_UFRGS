@@ -1,4 +1,4 @@
-rolling_window=function(fn,df,nwindow=1,horizon,variable, add_dummy = TRUE, nlags=4)
+rolling_window=function(fn,df,nwindow=1,horizon,variable, add_dummy = TRUE, nlags = 4)
   
   # fn: função que será aplicada à rolling window
   # df: dataframe
@@ -18,7 +18,7 @@ rolling_window=function(fn,df,nwindow=1,horizon,variable, add_dummy = TRUE, nlag
   }
   
   
-  rw=apply(indmat,2,fn,df=df,horizon=horizon,variable=variable,...)
+  rw=apply(indmat,2,fn,df=df,horizon=horizon,variable=variable, add_dummy = TRUE, nlags)
   
   ## aqui estamos aplicando a função sobre cada coluna(janela) de indmat ##
  
@@ -38,9 +38,9 @@ rolling_window=function(fn,df,nwindow=1,horizon,variable, add_dummy = TRUE, nlag
   
   forecast=unlist(lapply(rw,function(x)x$forecast))
   
-  ## lapply() aplica a função " function(x){x$forecast} " a cada sublistas de rw,
+  ## lapply() aplica a função " function(x){x$forecast} " a cada sublista (forecast) das listas (list) de rw,
   ## assim, ele consegue extrair $forecasts de cada sublista. Afinal, rw nao tem nehum retorno $forecast, 
-  ## pois retorna apena uma lista, que contem listas
+  ## pois retorna apena uma lista, que contem listas de $forecast
   
   outputs=lapply(rw,function(x)x$outputs)
   
