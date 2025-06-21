@@ -1,4 +1,4 @@
-dataprep = function(ind, df, variable, horizon, add_dummy = TRUE, nlags=4)
+dataprep = function(ind, df, variable, horizon, add_dummy = TRUE, nlags)
   
   # ind: indices das linhas que serao usadadas do dataframe ao aplicar df=df[ind,]
   # df: um data.frame
