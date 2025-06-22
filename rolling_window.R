@@ -1,4 +1,4 @@
-rolling_window=function(fn,df,nwindow=1,horizon,variable, add_dummy = TRUE, nlags = 4)
+rolling_window=function(fn,df,nwindow,horizon,variable, add_dummy = TRUE, nlags = 4)
   
   # fn: função que será aplicada à rolling window
   # df: dataframe
