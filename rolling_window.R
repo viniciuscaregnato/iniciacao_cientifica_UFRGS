@@ -25,28 +25,30 @@ rolling_window=function(fn,df,nwindow,horizon,variable, add_dummy = TRUE, nlags 
   # indmat: a matriz que contem as janelas
   # 2: função será aplicada nas colunas(2), nao nas linhas(1)
   # fn: função que será aplicada
-  # df= dataframe
-  # horizon: horizonte de previsao
-  # variable: variavel alvo
+  # df= dataframe (argumetno de fn)
+  # horizon: horizonte de previsao (argumetno de fn)
+  # variable: variavel alvo (argumetno de fn)
   
   ## apply retorna os resultados e previsoes das janelas, ou seja,
   ## rw <- list(
-  ## list(forecast = ..., results = ...),  # resultado da 1ª coluna(janela)
-  ## list(forecast = ..., results = ...),  # resultado da 2ª coluna(janela)
-  ## list(forecast = ..., results = ...)   # resultado da 3ª coluna(janela)
+  ## list[forecast = previsao da janela, outputs = list(variavel1, variavel2, ..)],  # resultado da 1ª coluna(janela)
+  ## list[forecast = previsao da janela, outputs = list(variavel1, variavel2, ..)],  # resultado da 2ª coluna(janela)
+  ## list[forecast = previsao da janela, outputs = list(variavel1, variavel2, ..)]   # resultado da 3ª coluna(janela)
   ##          ) 
   
   forecast=unlist(lapply(rw,function(x)x$forecast))
   
-  ## lapply() aplica a função " function(x){x$forecast} " a cada sublista (forecast) das listas (list) de rw,
+  ## lapply() aplica a função " function(x){x$forecast} " a cada sublista (list(forecast, outputs)) contidas em rw,
   ## assim, ele consegue extrair $forecasts de cada sublista. Afinal, rw nao tem nehum retorno $forecast, 
-  ## pois retorna apena uma lista, que contem listas de $forecast
+  ## pois retorna apena uma lista de janelas, as quais contêm forecast e outputs
+  ## o unlist() apenas concatena todos as previsões extraídas em um unico vetor
   
   outputs=lapply(rw,function(x)x$outputs)
   
-  ## lapply() aplica a função "function(x){x$outputs}" para cada sublistas contidas em rw,
+  ## lapply() aplica a função "function(x){x$outputs}" para cada sublistas (list(forecast, outputs)) contidas em rw,
   ## assim, ele extrai examente o retorno $outputs das subslistas. afinal, rw pode apenas retornar
   ## uma unica lista, que contem sublistas de forecast e outputs.  
+  ## outputs entao, é um vetor de listas (cada lista uma janela) e em cada uma as principais variaveis
   
   return(list(forecast=forecast, outputs=outputs))
   
