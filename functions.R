@@ -1,5 +1,4 @@
 # dataprep ####
-
 dataprep = function(ind, df, variable, horizon, add_dummy = TRUE, univar = FALSE, nofact = FALSE, nlags)
   
   # ind: indices das linhas que serao usadadas do dataframe ao aplicar df=df[ind,]
@@ -18,7 +17,7 @@ dataprep = function(ind, df, variable, horizon, add_dummy = TRUE, univar = FALSE
   y=df[,variable]                                    # separa coluna de y neste df do momento
   
   
-  "if (nofact==TRUE){
+  if (nofact==TRUE){                                # nao se observa NOFACT = TRUE no meu algoritmo
     if(univar==FALSE){
       x=df
     }else{
@@ -27,7 +26,7 @@ dataprep = function(ind, df, variable, horizon, add_dummy = TRUE, univar = FALSE
     
     
     
-  }else{"
+  }else{
   
   
   if(univar==FALSE){
@@ -37,40 +36,41 @@ dataprep = function(ind, df, variable, horizon, add_dummy = TRUE, univar = FALSE
     x = as.matrix(df[,variable])                   # se univar  + factor, matriz X é apenas de target var
   }
   
+  }
+
+
+
+X=embed(as.matrix(x),nlags)                        # X é a matriz x, com nlags defasagens
+
+Xin=X[-c((nrow(X)-horizon+1):nrow(X)),]            # remove as ultimas horizon linhas de X
+Xout=X[nrow(X),]                                   # armazena em Xout os valores da ultima linha da matriz X, em forma de vetor
+Xout=t(as.vector(Xout))                            # garante que Xout seja de fato uma linha, n apenas um vetor
+yin=tail(y,nrow(Xin))                              # pega os últimos nrow(Xin) valores do vetor y
+
+
+
+if("2008-11-01" %in% names(yin)){                  # (se 2008-11-01 está no names(yin):
   
-  
-  
-  
-  X=embed(as.matrix(x),nlags)                        # X é a matriz x, com nlags defasagens
-  
-  Xin=X[-c((nrow(X)-horizon+1):nrow(X)),]            # remove as ultimas horizon linhas de X
-  Xout=X[nrow(X),]                                   # armazena em Xout os valores da ultima linha da matriz X, em forma de vetor
-  Xout=t(as.vector(Xout))                            # garante que Xout seja de fato uma linha, n apenas um vetor
-  yin=tail(y,nrow(Xin))                              # pega os últimos nrow(Xin) valores do vetor y
-  
-  
-  
-  if("2008-11-01" %in% names(yin)){                  # (se 2008-11-01 está no names(yin):
-    
-    dummy=rep(0,length(yin))                         # cria um vetor de zeros, chamado dummy, com a extensao de yin
-    intervention=which(names(yin)=="2008-11-01")     # "intervention" apenas guarda o indice de "2008-11-01"
-    dummy[intervention]=1                            # tona o valor, no vetor "dummy", igual a 1, para o indice de internvention
-    if(add_dummy == TRUE){                           # (ainda se, add_dumy == TRUE, 
-      Xin=cbind(Xin,dummy)                           # adiciona coluna "dummy" à matriz "Xin"
-      Xout=cbind(Xout,0)                             # adiciona uma coluna de zeros à matriz "Xout"))
-    }
-    
-  }else{                                             # (se 2008-11-01 nao está no names(yin):
-    dummy = rep(0,length(yin))                       # cria um vetor de zeros, chamado dummy, com a extensao de yin
-    if(add_dummy == TRUE){                           # (ainda, se add_dummy for TRUE na função:
-      Xin=cbind(Xin,dummy)                           # adiciona coluna "dummy" à matriz "Xin"
-      Xout=cbind(Xout,0)                             # adiciona uma coluna de zeros à matriz "Xout"))
-    }
+  dummy=rep(0,length(yin))                         # cria um vetor de zeros, chamado dummy, com a extensao de yin
+  intervention=which(names(yin)=="2008-11-01")     # "intervention" apenas guarda o indice de "2008-11-01"
+  dummy[intervention]=1                            # tona o valor, no vetor "dummy", igual a 1, para o indice de internvention
+  if(add_dummy == TRUE){                           # (ainda se, add_dumy == TRUE, 
+    Xin=cbind(Xin,dummy)                           # adiciona coluna "dummy" à matriz "Xin"
+    Xout=cbind(Xout,0)                             # adiciona uma coluna de zeros à matriz "Xout"))
   }
   
-  return(list(dummy = dummy, Xin = Xin, Xout = Xout, yin = yin))
-  
+}else{                                             # (se 2008-11-01 nao está no names(yin):
+  dummy = rep(0,length(yin))                       # cria um vetor de zeros, chamado dummy, com a extensao de yin
+  if(add_dummy == TRUE){                           # (ainda, se add_dummy for TRUE na função:
+    Xin=cbind(Xin,dummy)                           # adiciona coluna "dummy" à matriz "Xin"
+    Xout=cbind(Xout,0)                             # adiciona uma coluna de zeros à matriz "Xout"))
+  }
 }
+
+return(list(dummy = dummy, Xin = Xin, Xout = Xout, yin = yin))
+
+}
+
 
 # autoregressive runrar ####
 
@@ -81,12 +81,16 @@ runar=function(ind,df,variable,horizon, type = "fixed"){
   Xout = prep_data$Xout
   dummy = prep_data$dummy
   
+  # Xin é constituído apenas por "variable", embedded nlags vezes
+  # nao é adicionado vetor de dummy na matriz X, apenas criado, se 2008-11-01 estiver no names(yin)
+  # o Xout sao as ultimas observações da janela X, que coicidem com a ultima linha de Yin
+  
   if(type=="fixed"){
     modelest=lm(yin~Xin+dummy)
-    best = ncol(Xin)
+    best = ncol(Xin)                        # best é o numero de colunas de Xin
   }
   
-  if(type=="bic"){
+  "if(type=="bic"){
     bb=Inf
     best = 1
     for(i in seq(1,ncol(Xin),1)){
@@ -98,11 +102,12 @@ runar=function(ind,df,variable,horizon, type = "fixed"){
         best = i
       }
     }
-  }
-  coef=coef(modelest)
-  coef[is.na(coef)] = 0
-  forecast=c(1,Xout[,1:best],0)%*%coef
-  
+  }"
+  coef=coef(modelest)                           # pega os coeficientes estimados na regressao 
+  coef[is.na(coef)] = 0                         # coeficientes com valor NA recebem o valor zero
+                                                # dummy pode ficar NA por multicolinearidade
+  forecast=c(1,Xout[,1:best],0)%*%coef          # atualiza Xout para c(1,Xout[,1:best],0) e multiplica pelos coeficientes estiamdos     
+                                                
   return(list(forecast=forecast))
 }
 
