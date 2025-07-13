@@ -21,7 +21,7 @@ rolling_window=function(fn,df,nwindow,horizon,variable, add_dummy = TRUE, nlags 
   rw=apply(indmat,2,fn,df=df,horizon=horizon,variable=variable, add_dummy = TRUE, nlags)
   
   ## aqui estamos aplicando a função sobre cada coluna(janela) de indmat ##
- 
+  
   # indmat: a matriz que contem as janelas
   # 2: função será aplicada nas colunas(2), nao nas linhas(1)
   # fn: função que será aplicada
@@ -53,3 +53,4 @@ rolling_window=function(fn,df,nwindow,horizon,variable, add_dummy = TRUE, nlags 
   return(list(forecast=forecast, outputs=outputs))
   
 }
+
