@@ -23,15 +23,15 @@ knitr::opts_chunk$set(echo = TRUE)
 aplica a função anonima sobre uma iteração.
 
 ### 1.1 o sapply() para acc3:
-A sequencia de 1:(nrow(forecast)-2) (1:178) rodará para cada matriz gerada na função anonima.  assim tem 178 trimestres para analisar.
+A sequencia de 1:(nrow(forecast)-2) (1:178) rodará para cada matriz gerada na função anonima.  assim tem 178 conjuntos de 3 meses para analisar.
 Por fim, retorna os resultados vetorizados.
 
 ### 1.2 o sapply() para acc6:
-A sequencia de 1:(nrow(forecast)-5) (1:175) rodará para cada matriz gerada na função anonima.  assim tem 175 trimestres para analisar.
+A sequencia de 1:(nrow(forecast)-5) (1:175) rodará para cada matriz gerada na função anonima.  assim tem 175 conjuntos de 6 meses para analisar.
 Por fim, retorna os resultados vetorizados.
 
-### 1.3 o sapply() para acc6:
-A sequencia de 1:(nrow(forecast)-11) (1:168) rodará para cada matriz gerada na função anonima.  assim tem 168 trimestres para analisar.
+### 1.3 o sapply() para acc12:
+A sequencia de 1:(nrow(forecast)-11) (1:168) rodará para cada matriz gerada na função anonima.  assim tem 168 conjuntos de 12 meses para analisar.
 Por fim, retorna os resultados vetorizados.
 
 ## 2. entendo a função anonima function(x){prod(1+diag(forecasts[x:(x+2),1:3]))-1}
