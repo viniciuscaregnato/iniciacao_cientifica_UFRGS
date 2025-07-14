@@ -1,4 +1,4 @@
-rolling_window=function(fn,df,nwindow,horizon,variable, add_dummy = TRUE, nlags = 4)
+rolling_window=function(fn,df,nwindow,horizon,variable, nlags = 4)
   
 {
   ind=1:nrow(df)
@@ -10,7 +10,7 @@ rolling_window=function(fn,df,nwindow,horizon,variable, add_dummy = TRUE, nlags 
   }
   
   
-  rw=apply(indmat,2,fn ,df,horizon=horizon,variable=variable, add_dummy = TRUE, nlags = nlags)
+  rw=apply(indmat,2,fn ,df,horizon=horizon,variable=variable, nlags = nlags)
   
   
   
