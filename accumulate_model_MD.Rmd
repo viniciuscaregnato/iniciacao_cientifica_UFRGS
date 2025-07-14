@@ -1,0 +1,92 @@
+---
+title: "accumulate_model"
+author: "Vinicius Caregnato Garcia"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# accumulate_model
+
+**A matriz forecasts:** tem ordem 180 (previsoes) x 12 (horizontes)
+
+> acc3 = c(rep(NA,2),sapply(1:(nrow(forecasts)-2), function(x){
+    prod(1+diag(forecasts[x:(x+2),1:3]))-1
+  }))
+
+
+## 1. O sapply()
+
+aplica a função anonima sobre uma iteração.
+
+### 1.1 o sapply() para acc3:
+A sequencia de 1:(nrow(forecast)-2) (1:178) rodará para cada matriz gerada na função anonima.  assim tem 178 trimestres para analisar.
+Por fim, retorna os resultados vetorizados.
+
+### 1.2 o sapply() para acc6:
+A sequencia de 1:(nrow(forecast)-5) (1:175) rodará para cada matriz gerada na função anonima.  assim tem 175 trimestres para analisar.
+Por fim, retorna os resultados vetorizados.
+
+### 1.3 o sapply() para acc6:
+A sequencia de 1:(nrow(forecast)-11) (1:168) rodará para cada matriz gerada na função anonima.  assim tem 168 trimestres para analisar.
+Por fim, retorna os resultados vetorizados.
+
+## 2. entendo a função anonima function(x){prod(1+diag(forecasts[x:(x+2),1:3]))-1}
+
+
+### 2.1 acc3 :
+
+
+> forecasts[x:(x+2),1:3]
+
+cria uma matriz quadrada 3x3.
+captura, para cada numero recebido, a linha correspondente até 2 a mais, e as 3 primeiras colunas.
+
+**iteração 1, em acc3:** forecast[1:3,1:3]
+
+**iteração 178, em acc3:** forecast[178:180,1:3]
+
+
+### 2.2 acc3
+
+> function(x){prod(1+diag(forecasts[..]))-1}
+
+1+diag() pega a diagonal das previsões, que sao medidas de variação, e soma 1 para obter os fatores de crescimento.
+
+entao, o prod(...) faz os valores se multiplicarem, afinal quereos o valore de crescimento dos primeiros 3 meses iniciais.
+
+Por fim, o -1 subtrai 1 para obter a variação de crescimento do periodo.
+
+
+**iteração 1, em acc3:** function(x){prod(1+diag(forecasts[1:3,1:3]))-1}
+
+
+**iteração 2, em acc3:** function(x){prod(1+diag(forecasts[177:179,2:4]))-1}
+
+
+
+## 3. Por fim, para acc3, temos que:
+
+> c(rep(NA,2), sapply(..))
+
+foram medidas 177 taxas de variações trimestrais. 
+Para garantir que o vetor acc3, com 177 valores trimestrais observados se encaixe na matriz de valores, é adicionado duas linhas de NA
+
+
+## 4. No final, atualiza a matriz forecasts com novas previsões periodicas
+
+> forecasts = cbind(forecasts,acc3,acc6,acc12)
+
+é concatenado a matriz forecasts e vetores acc3, acc6 e acc12
+
+> colnames(forecasts) = c(paste("t+",1:12,sep = ""),"acc3","acc6","acc12")
+
+e renomeado cada coluna conforme a taxa de variação.
+
+
+
+
+

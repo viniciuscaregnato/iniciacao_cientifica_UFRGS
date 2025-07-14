@@ -1,0 +1,127 @@
+---
+title: "rolling_window_MD"
+author: "Vinicius Caregnato Garcia"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# A função superior rolling_window
+
+## 1.Os argumentos
+
+> rolling_window=function(fn,df,nwindow,horizon,variable, add_dummy = TRUE, nlags = 4)
+
+fn: função que será aplicada à rolling window
+df: dataframe original
+nwindow: numero de previsoes, Y out-of-sample (???)
+horizon: horizonte de previsao
+variable: variavel alvo
+add_dummy: adicionar a coluna dummy à matriz X, ou nao
+nlags: numero de lags
+
+
+**{**
+
+## 2. Criando indmat: a matriz com os indices, cada coluna uma janela
+
+> ind=1:nrow(df)   
+> window_size=nrow(df)-nwindow
+
+
+ind: indices das linhas do dataframe que serao usadas ao aplicar df=df[ind,], na funação
+window_size: tamanho da janela insample
+
+> indmat=matrix(NA,window_size,nwindow)
+> indmat[1,]=1:ncol(indmat)
+
+cria uma matriz indmat de tamanho window_size × nwindow (indices de insample x numero da janela)
+primeira linha é enumerada com valores de 1 a nwindows
+
+> for(i in 2:nrow(indmat)){
+    indmat[i,]=indmat[i-1,]+1 
+}
+
+demais indices de df para cada janela sao preenchidas na indmat
+
+## 3. o apply():  estamos aplicando a função sobre cada coluna(janela) de indmat
+
+> rw=apply(indmat,2, fn, df, horizon=horizon,variable=variable, add_dummy = TRUE, nlags = nlags)
+
+indmat: a matriz que contem as janelas(colunas) e indices de df
+2: função será aplicada nas colunas(2), nao nas linhas(1)
+fn: função que será aplicada
+
+df= dataframe com os valores dos indices escritos em indmat (argumetno de fn) 
+horizon: (argumetno de fn)
+variable:  (argumetno de fn)
+add_dummy: argumetno de fn
+nlags = argumetno de fn
+  
+### 3.1 como funciona
+
+apply retorna uma lista de retorno, pois fn age sobre cada janela (coluna).
+Cada resultado é uma lista de forecast e previsoes
+
+> rw <- list(
+
+**1° janela**
+  list[forecast = previsao da janela, outputs = list(variavel1, variavel2, ..)],
+  
+**2° janela**
+  list[forecast = previsao da janela, outputs = list(variavel1, variavel2, ..)],
+  
+**3° janela**  
+  list[forecast = previsao da janela, outputs = list(variavel1, variavel2, ..)]
+  
+>  ) 
+
+## 4. capturando forecast
+
+> forecast=unlist(lapply(rw,function(x)x$forecast))  
+
+### 4.1 lapply()
+o lapply atinge cada elemento ( lista(forecast, outputs(..)) ) da lista rw e retorna uma lista com todos os forecasts
+aplica a função anonima function(x) {x$forecast} sobre cada lista de rw, e retorna uma lista de itens capturados (forecasts)
+
+**o retorno: ** list(forescast,
+     forecast,
+     forecast, 
+     ...,
+  )
+
+### 4.2 o unlist()
+
+achata a lista gerada em lapply() em um grande vetor de valores de previsoes
+
+**o retorno:** forecast: vector(forecast, forecast, ...)
+
+## 5 capturando outputs
+
+> outputs=lapply(rw,function(x)x$outputs)
+  
+###5.1 o lapply()
+
+ lapply() aplica a função "function(x){x$outputs}" para cada sublistas (list(forecast, outputs)) contidas em rw
+ 
+assim, ele extrai examente o retorno $outputs das subslistas.
+  
+**o retorno:** outputs: list(
+outputs(list(variavel1, variavel2, ..)),
+outputs(list(variavel1, variavel2, ..)),
+outputs(list(variavel1, variavel2, ..))
+)
+
+entao outputs é uma lista que contem listas de melhores variaveis para cada previsao
+
+## 6. o retorno de rolling_window
+
+return( 
+
+forecast=list(previsao1, previsao2, previsao3,  ...,) ,
+outputs=list(
+        list(variavel1.1, variavel1.2, ..)
+        list(variavel2.1, variavel2.2, ..)
+        list(variavel3.1, variavel3.2, ..)
+)
+
+**}**

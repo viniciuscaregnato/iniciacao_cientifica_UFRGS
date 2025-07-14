@@ -1,0 +1,122 @@
+---
+title: "Aprendendo call_model"
+author: "Vinicius Caregnato Garcia"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# call_model
+
+## 1. Definindo os objetos
+
+
+> model_name = "AR"
+> model_function = runar
+
+> nwindows = 180
+> model_list = list()
+
+
+## 2. Rodando a iteração
+
+
+> for(i in 1:12){
+>   model = rolling_window(model_function,data,nwindows+i-1,i,"CPIAUCSL")
+>   model_list[[i]] = model
+>   cat(i,"\n")
+> }
+
+
+**A 1° iteração, i=1:** nwindow = 180  e horizon = 1.
+ model gera 180 previsões assim como todos os outputs de cada uma dessas previsões para esta condição.
+
+
+>  model = rolling_window(model_function,data,nwindows=180,horizon=1,"CPIAUCSL")
+
+
+**A 2° iteração, i=2:** nwindow = 181  e horizon = 2.
+ model gera 181 previsões assim como todos os outputs de cada uma dessas previsões para esta condição.
+
+>  model = rolling_window(model_function,data,nwindows=181,horizon=2,"CPIAUCSL")
+
+
+
+**A 12° iteração, i=2:** nwindow = 191  e horizon = 12.
+ model gera 191 previsões assim como todos os outputs de cada uma dessas previsões para esta condição.
+
+>  model = rolling_window(model_function,data,nwindows=191,horizon=12,"CPIAUCSL")
+
+
+### 2.1 organizando as iterações
+
+> model_list[[i]] = model
+
+
+cada iteração roda um  "model", que gera um vetor previsao e uma lista outputs. Para salvar cada iteração e mantê-las em uma lista, de maneira que cada ítem da lista preserve a estrutura gerada em "model", é usado [[i]].
+Desa maneira ao agrupar uma lista de elementos "model", o R nao vetoriza os resultados de model, mas salva conforme eles foram gerados.
+
+
+> cat(i," \ n")
+
+
+cat apenas imprime o i do momento ao chegar ao fim da iteração.
+
+## 3. Organizando as previsões
+
+> forecasts = Reduce(cbind,lapply(model_list, function(x)head(x$forecast,nwindows)))
+
+### 3.1 entendendo lapply(...)
+
+> lapply(model_list, function(x)head(x$forecast,nwindows)
+
+lapply aplica a função function(x){head(x$forecast,nwindows)} para cada ítem de model_list.
+
+Dado que cada "x" é um dos 12 ítens de model_list, cada ítem (model=i) receberá a função {head(x$forecast,nwindows)}
+
+**1° iteração de lapply()**
+
+> head(model_list[[1]]$forecasts, nwindow = 180)
+
+isso gera um vetor das primeiras 180 previsoes do primeiro ítem de model_list
+
+**2° iteração de lapply()**
+
+> head(model_list[[2]]$forecast, nwindow = 180)
+
+isso gera outra lista das primeiras 180 previsoes  de model_list[[2]].
+
+**resumo** lapply() gera 12 vetores, com 180 itens cada.
+
+### 3.2 entendendo Reduce(cbind,lapply(...)
+
+> Reduce(cbind,lapply(model_list, function(x)head(x$forecast,nwindows)))
+
+cbind organiza cada vetor ao lado do outro, sendo 1 coluna para cada um em uma matriz. mas para isso, cbind deve receber todos os argumentos explicitados.
+
+Reduce() agrupa todos os vetors, recebidos após a itearação lapply(), e repassa de maneira que cbind possa fazer seu papel.
+
+
+### 4. accumulate_model
+
+> forecasts = accumulate_model(forecasts)
+
+a função accumulate_model calcula e adiciona na matriz a taxa de variação trimestral, semestral e anual
+
+### 5. Finaliza salvando e plotando os graficos
+
+### 5.1
+> save(forecasts,file = paste("forecasts/",model_name,".rda",sep = ""))
+
+salva a matriz de forescasts, conforme o nome do modelo
+
+### 5.2
+> plot(tail(data[,"CPIAUCSL"],180),type = "l")
+
+plota a linha de observações de CPIAUCSL.
+
+> lines(forecasts[,1],col = 3)
+
+plota a linha de forecasts referente a h=1
+
+
+
