@@ -1,7 +1,7 @@
 library(devtools)
 
 
-# install_github("gabrielrvsc/HDeconometrics", force = TRUE) ### ainda nao entedi o uso
+# install_github("gabrielrvsc/HDeconometrics", force = TRUE)
 library(HDeconometrics)
 library(glmnet)
 library(randomForest)
