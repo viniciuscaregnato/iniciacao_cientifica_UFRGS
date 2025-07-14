@@ -1,5 +1,6 @@
-# dataprep ####
-dataprep = function(ind, df, variable, horizon, add_dummy = TRUE, univar = FALSE, nofact = FALSE, nlags)
+# dataprep
+
+dataprep = function(ind, df, variable, horizon = horizon, add_dummy = TRUE, univar = FALSE, nofact = FALSE, nlags=nlags)
   
   # ind: indices das linhas que serao usadadas do dataframe ao aplicar df=df[ind,]
   # df: um data.frame
@@ -27,55 +28,55 @@ dataprep = function(ind, df, variable, horizon, add_dummy = TRUE, univar = FALSE
     
     
   }else{
-  
-  
-  if(univar==FALSE){
-    factors=princomp(scale(df))$scores[,1:4]
-    x=cbind(df,factors)                            # se multivar + factor, default adiciona principal components na matriz X
-  }else{
-    x = as.matrix(df[,variable])                   # se univar  + factor, matriz X é apenas de target var
+    
+    
+    if(univar==FALSE){
+      factors=princomp(scale(df))$scores[,1:4]
+      x=cbind(df,factors)                            # se multivar + factor, default adiciona principal components na matriz X
+    }else{
+      x = as.matrix(df[,variable])                   # se univar  + factor, matriz X é apenas de target var
+    }
+    
   }
   
-  }
-
-
-
-X=embed(as.matrix(x),nlags)                        # X é a matriz x, com nlags defasagens
-
-Xin=X[-c((nrow(X)-horizon+1):nrow(X)),]            # remove as ultimas horizon linhas de X
-Xout=X[nrow(X),]                                   # armazena em Xout os valores da ultima linha da matriz X, em forma de vetor
-Xout=t(as.vector(Xout))                            # garante que Xout seja de fato uma linha, n apenas um vetor
-yin=tail(y,nrow(Xin))                              # pega os últimos nrow(Xin) valores do vetor y
-
-
-
-if("2008-11-01" %in% names(yin)){                  # (se 2008-11-01 está no names(yin):
   
-  dummy=rep(0,length(yin))                         # cria um vetor de zeros, chamado dummy, com a extensao de yin
-  intervention=which(names(yin)=="2008-11-01")     # "intervention" apenas guarda o indice de "2008-11-01"
-  dummy[intervention]=1                            # tona o valor, no vetor "dummy", igual a 1, para o indice de internvention
-  if(add_dummy == TRUE){                           # (ainda se, add_dumy == TRUE, 
-    Xin=cbind(Xin,dummy)                           # adiciona coluna "dummy" à matriz "Xin"
-    Xout=cbind(Xout,0)                             # adiciona uma coluna de zeros à matriz "Xout"))
+  
+  X=embed(as.matrix(x),nlags)                        # X é a matriz x, com nlags defasagens
+  
+  Xin=X[-c((nrow(X)-horizon+1):nrow(X)),]            # remove as ultimas horizon linhas de X
+  Xout=X[nrow(X),]                                   # armazena em Xout os valores da ultima linha da matriz X, em forma de vetor
+  Xout=t(as.vector(Xout))                            # garante que Xout seja de fato uma linha, n apenas um vetor
+  yin=tail(y,nrow(Xin))                              # pega os últimos nrow(Xin) valores do vetor y
+  
+  
+  
+  if("2008-11-01" %in% names(yin)){                  # (se 2008-11-01 está no names(yin):
+    
+    dummy=rep(0,length(yin))                         # cria um vetor de zeros, chamado dummy, com a extensao de yin
+    intervention=which(names(yin)=="2008-11-01")     # "intervention" apenas guarda o indice de "2008-11-01"
+    dummy[intervention]=1                            # tona o valor, no vetor "dummy", igual a 1, para o indice de internvention
+    if(add_dummy == TRUE){                           # (ainda se, add_dumy == TRUE, 
+      Xin=cbind(Xin,dummy)                           # adiciona coluna "dummy" à matriz "Xin"
+      Xout=cbind(Xout,0)                             # adiciona uma coluna de zeros à matriz "Xout"))
+    }
+    
+  }else{                                             # (se 2008-11-01 nao está no names(yin):
+    dummy = rep(0,length(yin))                       # cria um vetor de zeros, chamado dummy, com a extensao de yin
+    if(add_dummy == TRUE){                           # (ainda, se add_dummy for TRUE na função:
+      Xin=cbind(Xin,dummy)                           # adiciona coluna "dummy" à matriz "Xin"
+      Xout=cbind(Xout,0)                             # adiciona uma coluna de zeros à matriz "Xout"))
+    }
   }
   
-}else{                                             # (se 2008-11-01 nao está no names(yin):
-  dummy = rep(0,length(yin))                       # cria um vetor de zeros, chamado dummy, com a extensao de yin
-  if(add_dummy == TRUE){                           # (ainda, se add_dummy for TRUE na função:
-    Xin=cbind(Xin,dummy)                           # adiciona coluna "dummy" à matriz "Xin"
-    Xout=cbind(Xout,0)                             # adiciona uma coluna de zeros à matriz "Xout"))
-  }
+  return(list(dummy = dummy, Xin = Xin, Xout = Xout, yin = yin))
+  
 }
 
-return(list(dummy = dummy, Xin = Xin, Xout = Xout, yin = yin))
 
-}
+# autoregressive runar ####
 
-
-# autoregressive runrar ####
-
-runar=function(ind,df,variable,horizon, type = "fixed"){
-  prep_data = dataprep(ind,df,variable,horizon, univar = TRUE, add_dummy = FALSE)
+runar=function(ind,df,variable = variable,horizon = horizon, add_dummy = FALSE, type = "fixed", nlags=nlags){
+  prep_data = dataprep(ind,df,variable,horizon, add_dummy = FALSE, univar = TRUE, nlags = nlags)
   Xin = prep_data$Xin
   yin = prep_data$yin
   Xout = prep_data$Xout
@@ -90,7 +91,7 @@ runar=function(ind,df,variable,horizon, type = "fixed"){
     best = ncol(Xin)                        # best é o numero de colunas de Xin
   }
   
-  "if(type=="bic"){
+  if(type=="bic"){
     bb=Inf
     best = 1
     for(i in seq(1,ncol(Xin),1)){
@@ -102,12 +103,12 @@ runar=function(ind,df,variable,horizon, type = "fixed"){
         best = i
       }
     }
-  }"
+  }
   coef=coef(modelest)                           # pega os coeficientes estimados na regressao 
   coef[is.na(coef)] = 0                         # coeficientes com valor NA recebem o valor zero
-                                                # dummy pode ficar NA por multicolinearidade
+  # dummy pode ficar NA por multicolinearidade
   forecast=c(1,Xout[,1:best],0)%*%coef          # atualiza Xout para c(1,Xout[,1:best],0) e multiplica pelos coeficientes estiamdos     
-                                                
+  
   return(list(forecast=forecast))
 }
 
