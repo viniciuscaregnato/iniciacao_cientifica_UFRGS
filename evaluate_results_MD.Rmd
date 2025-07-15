@@ -1,0 +1,100 @@
+---
+title: "evaluate_results"
+author: "Vinicius Caregnato Garcia"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+#1. organizando
+
+> model_files = setdiff(list.files("forecasts/"),c("rw.rda","yout.rda"))
+
+model_files captura o nome de todos os modelos da pasta forecast, menos rw.rda e yout.rda
+
+
+#2. models_list: esta é a lista de modeloS, no plural
+
+> models_list = list()
+
+apenas cria uma lista chamada models_file
+
+> for(i in 1:length(model_files)){
+  load(paste("forecasts/",model_files[i],sep = ""))
+  models_list[[i]] = forecasts
+}
+
+quando ele carrega o " forecasts/",model_files[i],sep = "" " o ambiente R "entra" no arquivo selecionado.
+
+o model_file[i] captura o forecasts do modelo, pois ao escrever forecasts, nos referimos ao que o ambiente conhece no momento.
+
+entao é criado uma lista models_list, contendo, em cada ítem, o forecasts de cada model_files[i]  carregado
+
+**resultado em models_list: a lista dos modelos:**
+- models_list: acessa todos os ítens (modelos) da lista
+- models_list[i]: apresenta todo o conteudo do modelo de indice i
+- model_list[[i]]: irá "entrar" no conteudo do modelo de indice i, que contem apenas uma lista (forecasts)
+- model_list[[i]][1]: carrega o primeiro iten do modelo i, que é o indice [1,1] da matriz forecasts
+- models_list[[1]][1,]: carrega a primeira linha da matriz forecasts do modelo de indice 1
+
+
+> names(models_list) = model_files
+
+cada item de model_list é nomeado na ordem de model_files
+
+# 3. calculando os erros para horizons
+
+##3.1 o erro RMSE de random walk para h=1 a h=12:
+
+> rwe = sqrt(colMeans((rw[,1:12]-yout[,1])^2))
+
+**rwe:** é calculado o RMSE. A raiz da media do erro quadratico de random walk
+
+##3.2 os erros RMSE dos demais modelos para h=1 a h=12:
+
+> errors = lapply(models_list, function(x){
+   sqrt(colMeans((x[,1:12]-yout[,1])^2))
+ })%>% Reduce(f=cbind)
+ colnames(errors) = model_files
+ 
+- **sqrt(colMeans((x[,1:12]-yout[,1])^2)):** calcula a raiz da media do erro quadradico de cada coluna (horizon) da matriz do modelo x para as 180 previsoes
+
+
+- **lapply(models_list,function(x)...):** aplica a formula iterativametne apra todos os modelos. O lapply() retorna uma lista de erro para cada modelo, e cada ítem é um vetor de 12 valore.
+ex: (vetor_erros_ar(erro_h1, erro_h2, .. erro_h3), vetor_erros_runrf(erro_h1, erro_h2, .. erro_h3))
+
+- **%>%:** o pipe passar argumentos da direita para a esquerda
+
+- **Reduce(f=cbind):** a função Reduce() transforma em colunas de uma matriz os vetores recebidos
+
+-**colnames(errors) = model_files:** cada coluna é nomeada conforme o modelo
+
+
+-**errors:** matriz de horizons x modelos que apresenta o valor dos RMSEs
+ 
+# 4 calculando os erros RMSE para os valores acumulados:
+ 
+## 4.1 o erro RMSE de random walk para valores acumulados
+
+>rweacc = sqrt(colMeans((rw[,13:15]-yout[,2:4])^2))
+
+**rw[,13:15]:** as colunas 13 a 15 se referem aos erros acc3, acc6 e acc12. 
+**yout[,2:4]:** as colunas 2 a 4 se referem aos erros acc3, acc6 e acc12.
+**rweacc:** vetor de erros RMSE acumulados (acc3, acc6, acc12)
+
+
+## 4.2 o erro dos moedlos para valores acumulados
+
+> errorsacc = lapply(models_list, function(x){
+   sqrt(colMeans((x[,13:15]-yout[,2:4])^2,na.rm=TRUE))
+ })%>% Reduce(f=cbind)
+ 
+-**errorsacc:** é uma matriz de tamanho (3 acc's x numero_modelos)
+
+> colnames(errorsacc) = model_files
+
+apenas nomeia o objeto errosacc
+
+## 5. organização final
+
+> res = rbind(errors/rwe,
+            errorsacc/rweacc)
