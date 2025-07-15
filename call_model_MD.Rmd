@@ -16,6 +16,7 @@ output: html_document
 > nwindows = 180
 > model_list = list()
 
+mode_list é a "lista do modelo" que contem outputs e forecasts
 
 ## 2. Rodando a iteração
 
@@ -61,6 +62,16 @@ Desa maneira ao agrupar uma lista de elementos "model", o R nao vetoriza os resu
 
 cat apenas imprime o i do momento ao chegar ao fim da iteração.
 
+**resultado da iteração: a lista model_list, a lista do modelo**
+- objeto model_list: irá carregar a lista de modelos, porem com apenas um item (modelo), contendo forecasts e outputs
+- objeto model_list[1]: irá caregar o modelo de indice 1, o único que existe na lista
+- objeti model_list[[i]]: irá "entrar" no conteudo do modelo de indice i
+- objeto model_list[[i]][1]: carrega a primeira lista do modelo i, que é forecast
+- objeto model_list[[i]][2]: carrega a segunda lista do modelo i, q é output
+- objeto model_list[[i]][[1]]: "entra" na primeira lista, que é forecast
+- objeto model_list[[i]][[1]][1]: carrega o primeiro ítem da primeira lista do modelo i
+
+
 ## 3. Organizando as previsões
 
 > forecasts = Reduce(cbind,lapply(model_list, function(x)head(x$forecast,nwindows)))
@@ -93,7 +104,8 @@ isso gera outra lista das primeiras 180 previsoes  de model_list[[2]].
 
 cbind organiza cada vetor ao lado do outro, sendo 1 coluna para cada um em uma matriz. mas para isso, cbind deve receber todos os argumentos explicitados.
 
-Reduce() agrupa todos os vetors, recebidos após a itearação lapply(), e repassa de maneira que cbind possa fazer seu papel.
+Reduce() agrupa todos os vetores, recebidos após a itearação lapply(), e repassa de maneira que cbind possa fazer seu papel. caso contrário, lapply passaria uma lista para cbind que nao trabalha com lista
+
 
 
 ### 4. accumulate_model
