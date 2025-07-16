@@ -25,9 +25,9 @@ apenas cria uma lista chamada models_file
 
 quando ele carrega o " forecasts/",model_files[i],sep = "" " o ambiente R "entra" no arquivo selecionado.
 
-o model_file[i] captura o forecasts do modelo, pois ao escrever forecasts, nos referimos ao que o ambiente conhece no momento.
+o model_file[i] captura o forecasts do modelo i, pois ao escrever forecasts, nos referimos ao que o ambiente conhece no momento.
 
-entao é criado uma lista models_list, contendo, em cada ítem, o forecasts de cada model_files[i]  carregado
+entao é criado uma lista models_list, contendo, em cada ítem, a matriz forecasts de cada model_files[i]  carregado
 
 **resultado em models_list: a lista dos modelos:**
 - models_list: acessa todos os ítens (modelos) da lista
@@ -35,7 +35,7 @@ entao é criado uma lista models_list, contendo, em cada ítem, o forecasts de c
 - model_list[[i]]: irá "entrar" no conteudo do modelo de indice i, que contem apenas uma lista (forecasts)
 - model_list[[i]][1]: carrega o primeiro iten do modelo i, que é o indice [1,1] da matriz forecasts
 - models_list[[1]][1,]: carrega a primeira linha da matriz forecasts do modelo de indice 1
-
+- models_list[[1]][,1]: carrega a primeira linha da matriz forecasts do modelo de indice 1
 
 > names(models_list) = model_files
 
