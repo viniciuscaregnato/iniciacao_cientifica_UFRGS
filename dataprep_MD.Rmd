@@ -1,0 +1,116 @@
+---
+title: "dataprep"
+author: "Vinicius Caregnato Garcia"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+#1. Os argumentos:
+
+**ind:** indices das linhas que serao usadadas do dataframe ao aplicar df=df[ind,]
+  
+**df:** um data.frame
+
+**variable:** nome da variavel do dataframe a ser analisada, será o y
+
+**horizon:** horizonte de previsao, que determina quantas últimas observações serão retiradas da matriz X ao criar Xin e Xout
+
+**add_dummy (padrao TRUE):** adiciona coluna "dummy" para a variavel "2008-11-01" na matriz "Xin" e uma coluna de zeros à matriz "Xout"
+
+**univar (padrao FALSE):** caso for TRUE, os dados df[,variabele] sao transformados na matriz X, tornado a serie apenas determinada pelas suas defasagens .caso for FALSE, dai depende de factonly e nofact.
+
+**factonly (padrao FALSE):** só existe se nofactor for FALSE, caso for TRUE, é usado apenas fatores(primeiros 4 componentes principais) como variaveis
+
+**nofact (padrao FALSE):** se for TRUE, ignora a extração de componentes pricipais PCA, e usa apenas os dados do modelo
+  
+**nlags:** numero de dafasagens, ao apicar embed()
+
+# 2. adequando df conforme a janela recebida
+
+> df=df[ind,]
+
+nova configuração de df adaptada à janela atual
+
+> y=df[,variable]
+
+estabelecendo y conforme novo df
+
+## 2.1 if nofact = TRUE, e univar = FALSE
+
+> x=df
+
+x é todo o dataframe (incluindo variable)
+
+
+## 2.2 if nofact==TRUE, e univar==TRUE
+
+> x=as.matrix(df[,variable])
+
+x é apenas a coluna variable
+
+## 2.3 if nofact==FALSE
+
+nao consideramos no meu algoritmo
+
+# 3. definindo a matriz X conforme defasagens
+ 
+> X = embed(as.matrix(x), nlags)
+
+- com embed(x,1): mantem igual
+- com embed(x,2): é a concaternar a matriz 2:n com a matriz 1:n-1
+-com embed(x,3): é concaternar [3:nrow(x),] + [2:nro2(x)-1,] + [1:nrow(x)-2,]
+
+##3.1 Xin
+
+> Xin=X[-c((nrow(X)-horizon+1):nrow(X)),]
+
+**Xin:** retira as ultimas horizon linhas da matriz X
+
+## 3.3 Xout
+
+> Xout=X[nrow(X),]
+> Xout=t(as.vector(Xout))
+
+Xout é o vetor das ultimas linhas da matriz com defasagens X
+
+## 3.4 Yin
+
+> yin=tail(y,nrow(Xin))
+
+pega os ultimo nrow(Xin) termos do vetor y
+
+# 4. if("2008-11-01" %in% names(yin))
+
+> dummy=rep(0,length(yin))  
+
+cria um vetor dummy de zeros, e tamanho de Yin
+
+> intervention=which(names(yin)=="2008-11-01")
+
+intervention guarda o indice que corresponde a names(yin)=="2008-11-01". which() faz essa verificação
+
+> dummy[intervention]=1     
+
+coloca o termo de indice intervention igual a 1
+
+
+## 4.1 if(dummy==TRUE):
+
+> Xin=cbind(Xin,dummy)
+
+> Xout=cbind(Xout,0)
+
+# 5 if("2008-11-01" NAO ESTÁ EM names(yin)):
+
+> dummy=rep(0,length(nrow(Xin)))
+
+##5.1 if(dummy==TRUE)
+
+> Xin=cbind(Xin,dummy)
+
+> Xout=cbind(Xout,0)
+
+# 6. O RETORNO
+
+> return(list(dummy=dummy, Xin=Xin, Xout=Xout, yin=yin))
+
