@@ -64,12 +64,12 @@ cat apenas imprime o i do momento ao chegar ao fim da iteração.
 
 **resultado da iteração: a lista model_list, a lista do modelo**
 - objeto model_list: irá carregar a lista de modelos, porem com apenas um item (modelo), contendo forecasts e outputs
-- objeto model_list[1]: irá caregar o modelo de indice 1, o único que existe na lista
-- objeti model_list[[i]]: irá "entrar" no conteudo do modelo de indice i
-- objeto model_list[[i]][1]: carrega a primeira lista do modelo i, que é forecast
-- objeto model_list[[i]][2]: carrega a segunda lista do modelo i, q é output
-- objeto model_list[[i]][[1]]: "entra" na primeira lista, que é forecast
-- objeto model_list[[i]][[1]][1]: carrega o primeiro ítem da primeira lista do modelo i
+- objeto model_list[1]: irá caregar a primeira lista (h=1), que contem forecast e outputs
+- objeti model_list[[i]]: irá "entrar" no conteudo do indice i, que contem forecast e outputs
+- objeto model_list[[i]][1]: carrega o primeiro termo do indice i (h=i), que é forecast
+- objeto model_list[[i]][2]: carrega o segundo termo do indice i, q é a lita outputs
+- objeto model_list[[4]][[1]]: "entra" na quarta lista (h=4), e nela, carrega o primeiro objeto, que é o vetor forecast
+- objeto model_list[[i]][[1]][1]: carrega a primeira lista de indice i (h=i), e nela, entra no primeiro termo, q é o vetor forecast, e nele carrega o primeiro termo.
 
 
 ## 3. Organizando as previsões
