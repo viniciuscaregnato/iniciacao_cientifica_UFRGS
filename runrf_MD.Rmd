@@ -1,0 +1,43 @@
+---
+title: "runrf"
+author: "Vinicius Caregnato Garcia"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# 1. os argumentos
+
+**ind:** indices das linhas q serao usadas, recebido pelo apply, que extraiu da indmat
+**df:** o dataframe
+**variable:** a variavel dependente
+**horizon:** o horizonte de previsao
+
+# 2. estimando o modelo
+
+> modelest=randomForest::randomForest(Xin,yin, importance = TRUE)
+
+randomForest::randomForest: importa a função randomForest do pacote randomForest.
+
+importance = TRUE: retorna o peso das variáveis sobre o modelo.
+
+# 3. aplicando a previsao
+
+forecast = predict(modelest, Xout)
+
+# 4. organizando os outputs
+
+> importance = randomForest::importance(modelest)
+
+assim salvamos em imoprtance uma matriz de pesos das variaveis
+
+> outputs = list(importance = importance)
+
+assim, criamos uma lista "outputs", que contem todos os dados de importance
+
+
+#5. O retorno
+
+> return(list(forecast=forecast, outputs=outputs))
+
+- forecast é um numero
+- outputs é uma lsta dos pesos das variaveis para esta previsao
