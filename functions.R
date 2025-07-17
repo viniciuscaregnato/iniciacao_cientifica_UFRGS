@@ -115,7 +115,7 @@ runar=function(ind,df,variable = variable,horizon = horizon, type = "fixed", nla
 
 #  random forest ####
 
-runrf=function(ind,df,variable,horizon, add_dummy = TRUE, nlags = nlags)
+runrf=function(ind,df,variable,horizon, nlags = nlags)
   
   # ind: indices das linhas q serao usadas, recebido pelo apply, que extraiu da indmat
   # df: o dataframe
