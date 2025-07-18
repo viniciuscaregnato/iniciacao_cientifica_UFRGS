@@ -30,5 +30,6 @@ errorsacc = lapply(models_list, function(x){
 })%>% Reduce(f=cbind)
 colnames(errorsacc) = model_files
 
-res = rbind(errors/rwe,
-            errorsacc/rweacc)
+res = as.matrix(t(c(errors/rwe,
+            errorsacc/rweacc)))
+View(res)
