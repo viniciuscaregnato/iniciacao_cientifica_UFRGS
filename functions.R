@@ -1,6 +1,6 @@
 # dataprep
 
-dataprep = function(ind, df, variable, horizon = horizon, add_dummy = TRUE, univar = FALSE, nofact = FALSE, nlags=nlags)
+dataprep = function(ind, df, variable, horizon = horizon, add_dummy = TRUE, univar = FALSE, factonly = FALSE, nofact = FALSE, nlags=nlags)
   
   # ind: indices das linhas que serao usadadas do dataframe ao aplicar df=df[ind,]
   # df: um data.frame
