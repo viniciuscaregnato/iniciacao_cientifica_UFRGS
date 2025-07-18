@@ -65,7 +65,7 @@ dataprep = function(ind, df, variable, horizon = horizon, add_dummy = TRUE, univ
 
 # autoregressive runar ####
 
-runar=function(ind,df,variable = variable,horizon = horizon, type = "bic", nlags=nlags){
+runar=function(ind,df,variable = variable,horizon = horizon, type = "fixed", nlags=nlags){
   prep_data = dataprep(ind,df,variable,horizon, add_dummy = FALSE, univar = TRUE, nlags = nlags)
   Xin = prep_data$Xin
   yin = prep_data$yin
