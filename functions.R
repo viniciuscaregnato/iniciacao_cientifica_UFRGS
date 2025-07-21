@@ -1,6 +1,6 @@
 # dataprep
 
-dataprep = function(ind, df, variable, horizon = horizon, add_dummy = TRUE, univar = FALSE, factonly=FALSE, nofact = FALSE, nlags=nlags)
+dataprep = function(ind, df, variable, horizon = horizon, add_dummy = TRUE, univar = FALSE, nlags=nlags)
   
 {
   
@@ -8,28 +8,13 @@ dataprep = function(ind, df, variable, horizon = horizon, add_dummy = TRUE, univ
   y=df[,variable]                                    
   
   
-  if (nofact==TRUE){                                # nao se observa NOFACT = TRUE no meu algoritmo
-    if(univar==FALSE){
-      x=df
-    }else{
-      x=as.matrix(df[,variable])
-    }
-    
-    
-    
-  }else{
-    
-    
-    if(univar==FALSE){
+  if(univar==FALSE){
       factors=princomp(scale(df))$scores[,1:4]
       x=cbind(df,factors)                            
     }else{
       x = as.matrix(df[,variable])                   
     }
     
-  }
-  
-  
   
   X=embed(as.matrix(x),nlags)                        
   
