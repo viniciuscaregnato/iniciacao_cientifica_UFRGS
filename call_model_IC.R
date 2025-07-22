@@ -13,7 +13,7 @@ source("functions/rolling_window.R")
 source("functions/functions.R")
 
 
-model_name <- "ARrr"
+model_name <- "AR"
 model_function <- runar
 
 
@@ -34,6 +34,7 @@ lags = c(4,12)
 
 
 for (j in lags) {
+  cat(j,"lags:", "\n")
   contador <- match(j, lags)
   for(i in 1:12){
     model = rolling_window(model_function,data,nwindows+i-1,i,"CPIAUCSL", nlags=j) 
@@ -41,30 +42,29 @@ for (j in lags) {
     cat(i,"\n")
 }
   lags_list[[contador]] = model_list
-    cat(j, "\n")
 }
 
 
-forecasts_h4 = Reduce(cbind, lapply(lags_list[[1]], function(x)head(x$forecast,nwindows)))
-forecasts_h12 = Reduce(cbind,lapply(lags_list[[2]], function(x)head(x$forecast,nwindows)))
+forecasts_4lags = Reduce(cbind, lapply(lags_list[[1]], function(x)head(x$forecast,nwindows)))
+forecasts_12lags = Reduce(cbind,lapply(lags_list[[2]], function(x)head(x$forecast,nwindows)))
 
 
 
 # o accumulate_model calcula as diagonais, sendo assim, os valores de previsao de 3 e 6 meses
-forecasts_h4 = accumulate_model(forecasts_h4)
-forecasts_h12 = accumulate_model(forecasts_h12)
+forecasts_4lags = accumulate_model(forecasts_4lags)
+forecasts_12lags = accumulate_model(forecasts_12lags)
 
 
-View(forecasts_h12)
-View(forecasts_h4)
+View(forecasts_12lags)
+View(forecasts_4lags)
 
 
 
-save(forecasts_h4,file = paste("forecasts_h4/",model_name,".rda",sep = ""))
+save(forecasts_4lags,file = paste("forecasts_4lags/",model_name,".rda",sep = ""))
 
-save(forecasts_h12,file = paste("forecasts_h12/",model_name,".rda",sep = ""))
+save(forecasts_12lags,file = paste("forecasts_12lags/",model_name,".rda",sep = ""))
 
 
 plot(tail(data[,"CPIAUCSL"],180),type = "l")
-lines(forecasts_h12[,1],col = 3)
-lines(forecasts_h4[,1],col = 4)
+lines(forecasts_12lags[,1],col = 3)
+lines(forecasts_4lags[,1],col = 4)
