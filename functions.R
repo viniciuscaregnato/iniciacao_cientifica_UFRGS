@@ -141,8 +141,8 @@ runcwb=function(ind,df,variable = variable,horizon = horizon, nlags=nlags, lrate
   
   
   coef_opt_aux = mboost::extract(modelest, what = "coefficients")
-  coef_opt = rep(0, ncol(x))
-  names(coef_opt) = colnames(x)
+  coef_opt = rep(0, ncol(Xin))
+  names(coef_opt) = colnames(Xin)
   coef_opt[names(coef_opt_aux)] = coef_opt_aux
   
   
