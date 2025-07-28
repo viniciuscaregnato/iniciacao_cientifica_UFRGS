@@ -30,6 +30,26 @@ errorsacc = lapply(models_list, function(x){
 })%>% Reduce(f=cbind)
 colnames(errorsacc) = model_files
 
-res_h4 = as.matrix(t(c(errors/rwe,
-                    errorsacc/rweacc)))
+
+vecs_errors = list()
+for(i in 1:length(models_list)){
+  
+  vec = c(errors[,i], errorsacc[,i])
+  vecs_errors[[i]] = vec
+  
+  vec_rwerrors = c(rwe,rweacc)
+  
+}
+mat_errors=do.call(rbind, vecs_errors)
+
+res_h4=matrix(NA, nrow=nrow(mat_errors), ncol=ncol(mat_errors))
+for(i in 1:nrow(mat_errors)){
+  row=mat_errors[i,]/vec_rwerrors
+  res_h4[i,]=row
+  
+}
+
+colnames(res_h4)=colnames(mat_errors)
+rownames(res_h4)=names(models_list)
+
 View(res_h4)
