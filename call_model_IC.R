@@ -18,15 +18,18 @@ model_function <- runar
 
 
 
-load("data/data.rda")
+load("data/rawdata.RData")
+data<-dados
+colnames(data)[1]="CPIAUCSL"
 
-View(data)
+#View(data)
+#dim(data)
 
-dates = data$date
-data = data%>%select(-date)%>%as.matrix()
-rownames(data) = as.character(dates)
+#dates = data$date
+#data = data%>%select(-date)%>%as.matrix()
+#rownames(data) = as.character(dates)
 
-nwindows = 180
+nwindows = 312
 lags_list = list()
 model_list = list() 
 
@@ -65,6 +68,6 @@ save(forecasts_4lags,file = paste("forecasts_4lags/",model_name,".rda",sep = "")
 save(forecasts_12lags,file = paste("forecasts_12lags/",model_name,".rda",sep = ""))
 
 
-plot(tail(data[,"CPIAUCSL"],180),type = "l")
+plot(tail(data[,"CPIAUCSL"],312),type = "l")
 lines(forecasts_12lags[,1],col = 3)
 lines(forecasts_4lags[,1],col = 4)
