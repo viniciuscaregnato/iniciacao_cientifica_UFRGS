@@ -1,0 +1,75 @@
+---
+title: "random_walk_oos_y"
+author: "Vinicius Caregnato Garcia"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+#1 .inicializa e ajeita dados e parametros
+
+> load("data.rda")
+> dates = data$date
+> data = data%>%select(-date)%>%as.matrix()
+> rownames(data) = as.character(dates)
+
+> nwindows = 180
+
+
+#2. Organizando matriz Y observado
+
+> y = data[,"CPIAUCSL"]
+> y = cbind(y,roll_prod(1+y,3)-1,roll_prod(1+y,6)-1,roll_prod(1+y,12)-1)
+> yout = tail(y,nwindows)                                                   
+
+**roll_prod(1+y,3)-1:** roll_prod adiciona 1 ao valor de cada y e guarda o valordo produto de cada janela rolante, de tamanho 3. ao final, diminui um para obter a taxa de variação 
+
+**roll_prod(1+y,6)-1:**  roll_prod adiciona 1 ao valor de cada y e guarda o valordo produto de cada janela rolante, de tamanho 6. ao final, diminui um para obter a taxa de variação 
+
+**roll_prod(1+y,12)-1:**  roll_prod adiciona 1 ao valor de cada y e guarda o valordo produto de cada janela rolante, de tamanho 12. ao final, diminui um para obter a taxa de variação 
+
+#3. organizando a matriz RW:
+
+> rw = matrix(NA,nwindows,12)
+
+
+## 3.1 preenchendo os valores defasados
+> for(i in 1:12){                                                          
+  aux=data[(nrow(data)-nwindows-i+1):(nrow(data)-i),"CPIAUCSL"]          
+  rw[,i]=aux;                                                            
+}
+
+**aux:** sao os ultimos 180 valores, porem com um indice a menos. random walk assme que a melhor previsao apra y é y-1
+
+**rw:** é uma matriz de igual a matriz de y-1 a y-12, porem com sempre um valor defasado em cada coluna.
+
+## 3.2 adicionando colunas de valores acumulados acc3 acc6 e acc12
+
+> rw3 = embed(y[,2],4)
+> rw3 = tail(embed(y[,2],4)[,4],nwindows)
+
+cria uma martiz com a original e 3 defasagem da serie de variação trimestral
+transforma a ultima [,4] coluna desta matriz em um vetor com nwindows obsevações
+
+
+> rw6 = tail(embed(y[,3],7)[,7],nwindows)
+
+repete o processo para rw6
+
+> rw12 = tail(embed(y[,4],13)[,13],nwindows)
+
+repete o processo para rw12
+
+
+
+#4. Concluindo a matriz RW
+
+> rw = cbind(rw,rw3,rw6,rw12)
+> colnames(rw) = c(paste("t+",1:12,sep = ""),"acc3","acc6","acc12")
+
+matriz final, concatenando todos os valores obtidos ate aqui
+
+o random walking segue a premissa que a melhor previsão é a passada, mais um choque aleatorio (dado como zero) 
+
+
+save(yout,file = "forecasts/yout.rda")
+save(rw,file = "forecasts/rw.rda")
