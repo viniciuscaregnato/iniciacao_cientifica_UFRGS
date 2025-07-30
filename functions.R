@@ -1,4 +1,4 @@
-# dataprep
+# dataprep ####
 
 dataprep = function(ind, df, variable, horizon = horizon, add_dummy = TRUE, univar = FALSE, nlags=nlags)
   
@@ -9,14 +9,16 @@ dataprep = function(ind, df, variable, horizon = horizon, add_dummy = TRUE, univ
   
   
   if(univar==FALSE){
-      factors=princomp(scale(df))$scores[,1:4]
-      x=cbind(df,factors)                            
-    }else{
-      x = as.matrix(df[,variable])                   
-    }
-    
+    factors=princomp(scale(df))$scores[,1:4]
+    x=cbind(df,factors)
+    x=as.data.frame(x)
+    X=f_add_lags(x, nlags)
+  }else{
+    x = as.matrix(df[,variable])                   
+    X=embed(as.matrix(x),nlags)
+  }
   
-  X=embed(as.matrix(x),nlags)                        
+  X=as.matrix(X)
   
   Xin=X[-c((nrow(X)-horizon+1):nrow(X)),]            
   Xout=X[nrow(X),]                                   
@@ -48,6 +50,7 @@ dataprep = function(ind, df, variable, horizon = horizon, add_dummy = TRUE, univ
 }
 
 
+
 # autoregressive runar ####
 
 runar=function(ind,df,variable = variable,horizon = horizon, type = "bic", nlags=nlags){
@@ -56,7 +59,6 @@ runar=function(ind,df,variable = variable,horizon = horizon, type = "bic", nlags
   yin = prep_data$yin
   Xout = prep_data$Xout
   dummy = prep_data$dummy
-  
   
   if(type=="bic"){
     bb=Inf
@@ -83,7 +85,7 @@ runar=function(ind,df,variable = variable,horizon = horizon, type = "bic", nlags
 
 runrf=function(ind,df,variable,horizon, nlags = nlags)
   
-
+  
 {
   prep_data = dataprep(ind,df,variable,horizon, nlags = nlags)     
   Xin = prep_data$Xin                               
@@ -113,10 +115,7 @@ runcwb=function(ind,df,variable = variable,horizon = horizon, nlags=nlags, lrate
   yin = prep_data$yin
   Xout = prep_data$Xout
   
-  Xin = as.matrix(Xin)
-  yin = as.vector(yin)
-  
-  modelest= glmboost(
+ modelest= glmboost(
     y = yin,
     x = Xin,
     offset = 0,
@@ -145,9 +144,15 @@ runcwb=function(ind,df,variable = variable,horizon = horizon, nlags=nlags, lrate
   names(coef_opt) = colnames(Xin)
   coef_opt[names(coef_opt_aux)] = coef_opt_aux
   
+  #forecast
+  
+  Xin_mean = as.vector(apply(Xin, 2, mean))
+  yin_mean=mean(yin)
+  
+  forecast = sum(((Xout-Xin_mean)*coef_opt))+yin_mean
   
   outputs=list(coef_opt)
-  forecast= sum(Xout*coef_opt)
+  
   
   
   
@@ -157,7 +162,6 @@ runcwb=function(ind,df,variable = variable,horizon = horizon, nlags=nlags, lrate
   )
   )
 }
-
 
 
 # accumulate_model ####
@@ -179,4 +183,52 @@ accumulate_model = function(forecasts){
   
   return(forecasts)
   
+}
+
+# name lags ####
+
+f_add_lags_aux <- function(
+    x, # vetor com os valores numéricos
+    nlags, # lag máx. desejado
+    name # nome a ser colocado no vetor resultante
+) {
+  result <- embed(x, nlags) %>% data.frame()
+  colnames(result) <- c(
+    paste(name, "_t_", 1:nlags, sep = "")
+  )
+  
+  return(result)
+}
+
+f_add_lags <- function(
+    x, # data.frame com colunas nomeadas
+    nlags # lag máx. desejado
+) {
+  
+  x=data.frame(x)
+  
+  if (!is.data.frame(x)) {
+    stop(
+      "x must be a data.frame"
+    )
+  }
+  
+  dados <- data.frame(
+    temp = rep(1, nrow(x) - nlags + 1)
+  )
+  name_aux <- colnames(x)
+  
+  for (i in seq_len(ncol(x))) {
+    dados <- data.frame(
+      dados,
+      f_add_lags_aux(
+        x = x[, i],
+        nlags = nlags,
+        name = name_aux[i]
+      )
+    )
+  }
+  dados_aux <- data.frame(dados[, -1])
+  colnames(dados_aux) <- colnames(dados)[-1]
+  return(dados_aux)
 }
