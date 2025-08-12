@@ -80,8 +80,52 @@ runar=function(ind,df,variable = variable,horizon = horizon, type = "bic", nlags
   return(list(forecast=forecast))
 }
 
+# lasso runlasso ####
 
-#  random forest ####
+runlasso=function(ind,df,variable,horizon, alpha = 1, nlags=nlags){
+  
+  prep_data = dataprep(ind,df,variable,horizon, nlags=nlags)
+  Xin = prep_data$Xin
+  yin = prep_data$yin
+  Xout = prep_data$Xout
+  
+  modelest = ic.glmnet(Xin,yin,alpha = alpha)
+  
+  forecast=predict(modelest,Xout)
+  
+  ## outputs
+  coeflvl=coef(modelest)[-1]
+  coefpar=coeflvl*apply(Xin,2,sd)
+  lambda=modelest$lambda
+  outputs=list(coeflvl=coeflvl,coefpar=coefpar,lambda=lambda)
+  
+  return(list(forecast=forecast, outputs=outputs))
+}
+
+# runridge ####
+
+runridge=function(ind,df,variable,horizon, alpha = 0, nlags=nlags){
+  
+  prep_data = dataprep(ind,df,variable,horizon, nlags=nlags)
+  Xin = prep_data$Xin
+  yin = prep_data$yin
+  Xout = prep_data$Xout
+  
+  modelest = ic.glmnet(Xin,yin,alpha = alpha)
+  
+  forecast=predict(modelest,Xout)
+  
+  ## outputs
+  coeflvl=coef(modelest)[-1]
+  coefpar=coeflvl*apply(Xin,2,sd)
+  lambda=modelest$lambda
+  outputs=list(coeflvl=coeflvl,coefpar=coefpar,lambda=lambda)
+  
+  return(list(forecast=forecast, outputs=outputs))
+}
+
+
+# random forest ####
 
 runrf=function(ind,df,variable,horizon, nlags = nlags)
   
@@ -231,4 +275,46 @@ f_add_lags <- function(
   dados_aux <- data.frame(dados[, -1])
   colnames(dados_aux) <- colnames(dados)[-1]
   return(dados_aux)
+}
+
+# ic.glmnet ####
+
+
+ic.glmnet = function (x, y, crit = c("bic", "aic", "aicc", 
+                                     "hqc"), alpha = 1, ...) 
+{
+  if (is.matrix(x) == FALSE) {
+    x = as.matrix(x)
+  }
+  if (is.vector(y) == FALSE) {
+    y = as.vector(y)
+  }
+  crit = match.arg(crit)
+  n = length(y)
+  model = glmnet(x = x, y = y, alpha = alpha,...)
+  coef = coef(model)
+  lambda = model$lambda
+  df = model$df
+  yhat = cbind(1, x) %*% coef
+  residuals = (y - yhat)
+  mse = colMeans(residuals^2)
+  sse = colSums(residuals^2)
+  nvar = df + 1
+  bic = n * log(mse) + nvar * log(n)
+  aic = n * log(mse) + 2 * nvar
+  aicc = aic + (2 * nvar * (nvar + 1))/(n - nvar - 1)
+  hqc = n * log(mse) + 2 * nvar * log(log(n))
+  sst = (n - 1) * var(y)
+  r2 = 1 - (sse/sst)
+  adjr2 = (1 - (1 - r2) * (n - 1)/(nrow(x) - nvar - 1))
+  crit = switch(crit, bic = bic, aic = aic, aicc = aicc, hqc = hqc)
+  selected = best.model = which(crit == min(crit))
+  ic = c(bic = bic[selected], aic = aic[selected], aicc = aicc[selected], 
+         hqc = hqc[selected])
+  result = list(coefficients = coef[, selected], ic = ic, lambda = lambda[selected], 
+                nvar = nvar[selected], glmnet = model, residuals = residuals[, 
+                                                                             selected], fitted.values = yhat[, selected], ic.range = crit, 
+                df = df, call = match.call())
+  class(result) = "ic.glmnet"
+  return(result)
 }
