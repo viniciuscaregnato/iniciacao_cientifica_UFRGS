@@ -102,7 +102,7 @@ runlasso=function(ind,df,variable,horizon, alpha = 1, nlags=nlags){
   return(list(forecast=forecast, outputs=outputs))
 }
 
-# runridge ####
+# ridge runridge ####
 
 runridge=function(ind,df,variable,horizon, alpha = 0, nlags=nlags){
   
@@ -125,7 +125,29 @@ runridge=function(ind,df,variable,horizon, alpha = 0, nlags=nlags){
 }
 
 
-# random forest ####
+# lasso elastic_net ####
+
+runelasnet=function(ind,df,variable,horizon, alpha = 0.5, nlags=nlags){
+  
+  prep_data = dataprep(ind,df,variable,horizon, nlags=nlags)
+  Xin = prep_data$Xin
+  yin = prep_data$yin
+  Xout = prep_data$Xout
+  
+  modelest = ic.glmnet(Xin,yin,alpha = alpha)
+  
+  forecast=predict(modelest,Xout)
+  
+  ## outputs
+  coeflvl=coef(modelest)[-1]
+  coefpar=coeflvl*apply(Xin,2,sd)
+  lambda=modelest$lambda
+  outputs=list(coeflvl=coeflvl,coefpar=coefpar,lambda=lambda)
+  
+  return(list(forecast=forecast, outputs=outputs))
+}
+
+# random forest runrf ####
 
 runrf=function(ind,df,variable,horizon, nlags = nlags)
   
