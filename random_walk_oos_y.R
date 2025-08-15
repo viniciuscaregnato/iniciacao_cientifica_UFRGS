@@ -37,5 +37,8 @@ rw = cbind(rw,rw3,rw6,rw12)
 colnames(rw) = c(paste("t+",1:12,sep = ""),"acc3","acc6","acc12")        
 
 
-save(yout,file = "forecasts/yout.rda")
-save(rw,file = "forecasts/rw.rda")
+save(yout,file = "forecasts_4lags/yout.rda")
+save(rw,file = "forecasts_4lags/rw.rda")
+
+save(yout,file = "forecasts_12lags/yout.rda")
+save(rw,file = "forecasts_12lags/rw.rda")
