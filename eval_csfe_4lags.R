@@ -1,5 +1,7 @@
 library(tidyverse)
 
+# organizando dados
+
 load("forecasts_4lags/yout.rda")
 load("forecasts_4lags/rw.rda")
 
@@ -15,45 +17,52 @@ for(i in 1:length(model_files)){
 names(models_list) = model_files
 
 # CSFE h=1 ####
-errors_h1 = lapply(models_list, function(x){
+CSFE_h1_4lags = lapply(models_list, function(x){
   cumsum((rw[,1]-yout[,1])^2)-((x[,1]-yout[,1])^2)
 })%>% Reduce(f=cbind)
-colnames(errors_h1) = model_files
+colnames(CSFE_h1_4lags) = model_files
 
-View(errors_h1)
+View(CSFE_h1_4lags)
 
-matplot(1:nrow(errors_h1),  errors_h1, type="l", col=1:4, lty=1,
-         xlab="Data", ylab="CSFE_h1_4lags")
+matplot(1:nrow(CSFE_h1_4lags),  CSFE_h1_4lags, type="l", col=length(model_files), lty=1,
+        xlab="Data", ylab="CSFE_h1_4lags")
 
 # CSFE h=3 ####
-errors_h3 = lapply(models_list, function(x){
+CSFE_h3_4lags = lapply(models_list, function(x){
   cumsum((rw[,3]-yout[,1])^2)-((x[,3]-yout[,1])^2)
 })%>% Reduce(f=cbind)
-colnames(errors_h3) = model_files
+colnames(CSFE_h3_4lags) = model_files
 
-matplot(1:nrow(errors_h3),  errors_h3, type="l", col=1:4, lty=1,
+matplot(1:nrow(CSFE_h3_4lags),  CSFE_h3_4lags, type="l", col=length(model_files), lty=1,
         xlab="Data", ylab="CSFE_h3_4lags")
 
 # CSFE h=6 ####
-errors_h6 = lapply(models_list, function(x){
+CSFE_h6_4lags = lapply(models_list, function(x){
   cumsum((rw[,6]-yout[,1])^2)-((x[,6]-yout[,1])^2)
 })%>% Reduce(f=cbind)
-colnames(errors_h6) = model_files
+colnames(CSFE_h6_4lags) = model_files
 
-matplot(1:nrow(errors_h6),  errors_h6, type="l", col=1:4, lty=1,
+matplot(1:nrow(CSFE_h6_4lags),  CSFE_h6_4lags, type="l", col=length(model_files), lty=1,
         xlab="Data", ylab="CSFE_h6_4lags")
 
 # CSFE h=12 ####
-errors_h12 = lapply(models_list, function(x){
+CSFE_h12_4lags = lapply(models_list, function(x){
   cumsum((rw[,12]-yout[,1])^2)-((x[,12]-yout[,1])^2)
 })%>% Reduce(f=cbind)
-colnames(errors_h12) = model_files
+colnames(CSFE_h12_4lags) = model_files
 
-matplot(1:nrow(errors_h12),  errors_h12, type="l", col=1:4, lty=1,
+matplot(1:nrow(CSFE_h12_4lags),  CSFE_h12_4lags, type="l", col=length(model_files), lty=1,
         xlab="Data", ylab="CSFE_h12_4lags")
 
 
-save(errors_h1,file = "csfe_results/h1_4lags.rda")
-save(errors_h3,file = "csfe_results/h3_4lags.rda")
-save(errors_h6,file = "csfe_results/h6_4lags.rda")
-save(errors_h12,file = "csfe_results/h12_4lags.rda")
+save(CSFE_h1_4lags,file = "csfe_results/h1_4lags.rda")
+save(CSFE_h3_4lags,file = "csfe_results/h3_4lags.rda")
+save(CSFE_h6_4lags,file = "csfe_results/h6_4lags.rda")
+save(CSFE_h12_4lags,file = "csfe_results/h12_4lags.rda")
+
+
+# Para visualizar as curvas ####
+
+load("csfe_results/h12_4lags.rda")
+matplot(1:nrow(CSFE_h12_4lags),  CSFE_h12_4lags, type="l", col=length(model_files), lty=1,
+        xlab="Data", ylab="CSFE_h12_4lags")
