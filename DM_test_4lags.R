@@ -3,7 +3,7 @@ library(forecast)
 load("forecasts_4lags/yout.rda")
 load("forecasts_4lags/rw.rda")
 
-model_files = c(setdiff(list.files("forecasts_4lags/"),c("rw.rda", "yout.rda")), "rw.rda")
+model_files = c(setdiff(list.files("forecasts_4lags/"), "yout.rda"))
 
 models_list = list()
 for(i in 1:(length(model_files)-1)){
@@ -267,4 +267,5 @@ dm.test(errors_list_h6[,5], errors_list_h6[,6], h=6,  power = 2, alternative = "
 
 # h=12
 dm.test(errors_list_h12[,5], errors_list_h12[,6], h=12,  power = 2, alternative = "two.sided")
+
 
