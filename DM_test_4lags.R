@@ -35,10 +35,10 @@ View(errors_list_h3_4lags)
 View(errors_list_h6_4lags)
 View(errors_list_h12_4lags)
 
-save(errors_list_h1_4lags, file="errors_lists/errors_list_h1_4lags.rda")
-save(errors_list_h3_4lags, file="errors_lists/errors_list_h3_4lags.rda")
-save(errors_list_h6_4lags, file="errors_lists/errors_list_h6_4lags.rda")
-save(errors_list_h12_4lags, file="errors_lists/errors_list_h12_4lags.rda")
+save(errors_list_h1_4lags, file="errors_lists_4lags/errors_list_h1.rda")
+save(errors_list_h3_4lags, file="errors_lists_4lags/errors_list_h3.rda")
+save(errors_list_h6_4lags, file="errors_lists_4lags/errors_list_h6.rda")
+save(errors_list_h12_4lags, file="errors_lists_4lags/errors_list_h12.rda")
 
 
 # RW x AR ####
@@ -267,5 +267,6 @@ dm.test(errors_list_h6[,5], errors_list_h6[,6], h=6,  power = 2, alternative = "
 
 # h=12
 dm.test(errors_list_h12[,5], errors_list_h12[,6], h=12,  power = 2, alternative = "two.sided")
+
 
 
