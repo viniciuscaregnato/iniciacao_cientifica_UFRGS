@@ -20,13 +20,11 @@ CSFE_h1_12lags = Reduce(cbind, lapply(models_list, function(x){
 }))
 colnames(CSFE_h1_12lags) = model_files
 
-#View(CSFE_h1_12lags)
-
 png("C:/Users/celia/Desktop/ECONOMIA UFRGS/1. INICIAÇÃO CIENTIFICA/R/algoritmo0.3/CSFE_results/CSFE_h1_12lags.png",
     width=1200, height=800, res=150)
 
 matplot(1:nrow(CSFE_h1_12lags),  CSFE_h1_12lags, type="l", col=1:length(model_files), lty=1,
-        xlab="Data", ylab="CSFE_h1_12lags")
+        xlab="Forecast", ylab="CSFE_h1_12lags")
 
 legend("topleft", legend=colnames(CSFE_h1_12lags), col=1:ncol(CSFE_h1_12lags),
        lty=1, cex=0.50, bty="n")
@@ -43,7 +41,7 @@ png("C:/Users/celia/Desktop/ECONOMIA UFRGS/1. INICIAÇÃO CIENTIFICA/R/algoritmo
     width=1200, height=800, res=150)
 
 matplot(1:nrow(CSFE_h3_12lags),  CSFE_h3_12lags, type="l", col=1:length(model_files), lty=1,
-        xlab="Data", ylab="CSFE_h3_12lags")
+        xlab="Forecast", ylab="CSFE_h3_12lags")
 
 legend("topleft", legend=colnames(CSFE_h1_12lags), col=1:ncol(CSFE_h1_12lags),
        lty=1, cex=0.50, bty="n")
@@ -60,7 +58,7 @@ png("C:/Users/celia/Desktop/ECONOMIA UFRGS/1. INICIAÇÃO CIENTIFICA/R/algoritmo
     width=1200, height=800, res=150)
 
 matplot(1:nrow(CSFE_h6_12lags),  CSFE_h6_12lags, type="l", col=1:length(model_files), lty=1,
-        xlab="Data", ylab="CSFE_h6_12lags")
+        xlab="Forecast", ylab="CSFE_h6_12lags")
 
 legend("topleft", legend=colnames(CSFE_h1_12lags), col=1:ncol(CSFE_h1_12lags),
        lty=1, cex=0.50, bty="n")
@@ -77,7 +75,7 @@ png("C:/Users/celia/Desktop/ECONOMIA UFRGS/1. INICIAÇÃO CIENTIFICA/R/algoritmo
     width=1200, height=800, res=150)
 
 matplot(1:nrow(CSFE_h12_12lags),  CSFE_h12_12lags, type="l", col=1:length(model_files), lty=1,
-        xlab="Data", ylab="CSFE_h12_12lags")
+        xlab="Forecast", ylab="CSFE_h12_12lags")
 
 legend("topleft", legend=colnames(CSFE_h1_12lags), col=1:ncol(CSFE_h1_12lags),
        lty=1, cex=0.50, bty="n")
@@ -96,6 +94,6 @@ save(CSFE_h12_12lags,file = "csfe_results/h12_12lags.rda")
 
 load("csfe_results/h1_12lags.rda")
 matplot(1:nrow(CSFE_h1_12lags),  CSFE_h1_12lags, type="l", col=1:length(model_files), lty=1,
-        xlab="Data", ylab="CSFE_h1_12lags")
+        xlab="Forecast", ylab="CSFE_h1_12lags")
 legend("topleft", legend=colnames(CSFE_h1_12lags), col=1:ncol(CSFE_h1_12lags), lty=1,
        cex=0.50, bty="n")
