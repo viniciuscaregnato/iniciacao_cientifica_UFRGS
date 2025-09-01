@@ -27,10 +27,10 @@ dataprep = function(ind, df, variable, horizon = horizon, add_dummy = TRUE, univ
   
   
   
-  if("2008-11-01" %in% names(yin)){                  
+  if("11/1/2008" %in% names(yin)){                  
     
     dummy=rep(0,length(yin))                         
-    intervention=which(names(yin)=="2008-11-01")     
+    intervention=which(names(yin)=="11/1/2008")     
     dummy[intervention]=1                            
     if(add_dummy == TRUE){                            
       Xin=cbind(Xin,dummy)                           
@@ -340,3 +340,4 @@ ic.glmnet = function (x, y, crit = c("bic", "aic", "aicc",
   class(result) = "ic.glmnet"
   return(result)
 }
+
