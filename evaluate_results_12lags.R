@@ -1,5 +1,3 @@
-library(tidyverse)
-
 load("forecasts_12lags/yout.rda")
 load("forecasts_12lags/rw.rda")
 
@@ -16,18 +14,18 @@ names(models_list) = model_files
 
 rwe = sqrt(colMeans((rw[,1:12]-yout[,1])^2))
 
-errors = lapply(models_list, function(x){
+errors = Reduce(cbind,lapply(models_list, function(x){
   sqrt(colMeans((x[,1:12]-yout[,1])^2))
-})%>% Reduce(f=cbind)
+}))
 
 colnames(errors) = model_files
 
 
 rweacc = sqrt(colMeans((rw[,13:15]-yout[,2:4])^2))
 
-errorsacc = lapply(models_list, function(x){
+errorsacc = Reduce(cbind,lapply(models_list, function(x){
   sqrt(colMeans((x[,13:15]-yout[,2:4])^2,na.rm=TRUE))
-})%>% Reduce(f=cbind)
+}))
 colnames(errorsacc) = model_files
 
 
