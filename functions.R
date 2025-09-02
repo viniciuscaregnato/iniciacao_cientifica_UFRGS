@@ -230,6 +230,69 @@ runcwb=function(ind,df,variable = variable,horizon = horizon, nlags=nlags, lrate
 }
 
 
+# component wise boosting over auto regressive ####
+
+runcwbar=function(ind,df,variable = variable,horizon = horizon, nlags=nlags, lrate = 0.1, nite = 100){
+  prep_data = dataprep(ind,df,variable,horizon, add_dummy = TRUE, univar = TRUE, nlags = nlags)
+  Xin = prep_data$Xin
+  yin = prep_data$yin
+  Xout = prep_data$Xout
+  
+  
+  Xin = as.matrix(Xin)
+  Xout = as.numeric(unlist(Xout))
+  
+  modelest= glmboost(
+    y = yin,
+    x = Xin,
+    offset = 0,
+    center = TRUE,
+    control = boost_control(
+      mstop = nite,
+      nu = lrate
+    )
+  )
+  
+  aic = AIC(modelest, method = "corrected")
+  aic_seq = attributes(aic)$AIC
+  m_opt = min(
+    c(
+      which(diff(aic_seq) > 0)[1],
+      which.min(aic_seq)
+    ),
+    na.rm = TRUE
+  )
+  
+  modelest = modelest[m_opt]
+  
+  
+  coef_opt_aux = mboost::extract(modelest, what = "coefficients")
+  coef_opt = rep(0, ncol(Xin))
+  names(coef_opt) = colnames(Xin)
+  coef_opt[names(coef_opt_aux)] = coef_opt_aux
+  
+  #forecast
+  
+  Xin_mean = as.vector(apply(Xin, 2, mean))
+  yin_mean=mean(yin)
+  
+  forecast = sum(((Xout-Xin_mean)*coef_opt))+yin_mean
+  
+  outputs=list(coef_opt)
+  
+  
+  
+  
+  return(list(
+    forecast=forecast,
+    outputs=outputs
+  )
+  )
+}
+
+
+
+
 # accumulate_model ####
 
 accumulate_model = function(forecasts){
@@ -340,4 +403,3 @@ ic.glmnet = function (x, y, crit = c("bic", "aic", "aicc",
   class(result) = "ic.glmnet"
   return(result)
 }
-
